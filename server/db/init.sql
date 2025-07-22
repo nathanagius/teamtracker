@@ -164,3 +164,13 @@ INSERT INTO capabilities (name, description, category) VALUES
 ('Testing', 'Ability to write and execute tests', 'Quality'),
 ('Architecture', 'Ability to design system architecture', 'Design'),
 ('Leadership', 'Ability to lead and mentor team members', 'Management'); 
+
+-- User learning needs table
+CREATE TABLE user_learning_needs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    skill_id UUID REFERENCES skills(id) ON DELETE CASCADE,
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(user_id, skill_id)
+); 

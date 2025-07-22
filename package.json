@@ -25,7 +25,10 @@
         "concurrently": "^8.2.2"
     },
     "dependencies": {
+        "@minoru/react-dnd-treeview": "^3.5.3",
         "axios": "^1.10.0",
-        "faker": "^6.6.6"
+        "faker": "^6.6.6",
+        "react-dnd": "^16.0.1",
+        "react-dnd-html5-backend": "^16.0.1"
     }
 }

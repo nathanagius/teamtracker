@@ -51,6 +51,9 @@ export const usersAPI = {
   delete: (id) => api.delete(`/users/${id}`),
   getByRole: (role) => api.get(`/users/role/${role}`),
   search: (query) => api.get(`/users/search/${query}`),
+  getUserLearningNeeds: (userId) => api.get(`/users/${userId}/learning-needs`),
+  addUserLearningNeed: (userId, skillId, notes) => api.post(`/users/${userId}/learning-needs`, { skill_id: skillId, notes }),
+  removeUserLearningNeed: (userId, skillId) => api.delete(`/users/${userId}/learning-needs/${skillId}`),
 };
 
 // Team Members API
@@ -138,6 +141,11 @@ export const auditAPI = {
   getSummary: () => api.get("/audit/summary"),
   getRecent: (limit) => api.get("/audit/recent", { params: { limit } }),
 };
+
+export async function importWorkdayUsers() {
+  const response = await api.post('/import-workday');
+  return response.data;
+}
 
 // Fetch performance ratings for a user from the mock Workday API
 export async function fetchUserPerformanceRatings(userId) {

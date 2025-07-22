@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const db = require("../config/database");
 const { body, validationResult } = require("express-validator");
+const axios = require('axios');
 
 // Get all users
 router.get("/", async (req, res) => {
