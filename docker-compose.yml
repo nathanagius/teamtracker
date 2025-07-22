@@ -17,9 +17,7 @@ services:
       - team-tracker-network
 
   server:
-    build:
-      context: ./server
-      dockerfile: Dockerfile
+    image: node:18-alpine
     container_name: team-tracker-server
     environment:
       NODE_ENV: development
@@ -29,30 +27,42 @@ services:
       DB_USER: teamtracker
       DB_PASSWORD: teamtracker123
       JWT_SECRET: your-super-secret-jwt-key-change-in-production
+      PORT: 3030
+    working_dir: /app
+    command: npm run dev
     ports:
-      - "3001:3001"
+      - "3030:3030"
     depends_on:
       - postgres
     volumes:
       - ./server:/app
-      - /app/node_modules
     networks:
       - team-tracker-network
 
   client:
-    build:
-      context: ./client
-      dockerfile: Dockerfile
+    image: node:18-alpine
     container_name: team-tracker-client
     environment:
-      REACT_APP_API_URL: http://localhost:3001/api
+      REACT_APP_API_URL: http://localhost:3030/api
+      NODE_ENV: development
+    working_dir: /app
+    command: npm run start
     ports:
       - "3000:3000"
     depends_on:
       - server
     volumes:
       - ./client:/app
-      - /app/node_modules
+    networks:
+      - team-tracker-network
+
+  mock-workday:
+    build:
+      context: ./mock-workday
+      dockerfile: Dockerfile
+    container_name: mock-workday
+    ports:
+      - "4000:4000"
     networks:
       - team-tracker-network
 

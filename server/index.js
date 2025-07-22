@@ -29,6 +29,8 @@ app.use("/api/availability", require("./routes/availability"));
 app.use("/api/hierarchy", require("./routes/hierarchy"));
 app.use("/api/changes", require("./routes/changes"));
 app.use("/api/audit", require("./routes/audit"));
+// Register users route at /api for import-workday endpoint
+app.use("/api", require("./routes/users"));
 
 // Health check endpoint
 app.get("/api/health", (req, res) => {

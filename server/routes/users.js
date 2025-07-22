@@ -34,6 +34,7 @@ function requireAuth(req, res, next) {
     return res.status(401).json({ error: "Invalid or expired token" });
   }
 }
+const axios = require("axios");
 
 // Get all users
 router.get("/", async (req, res) => {
@@ -189,7 +190,7 @@ router.put(
       .optional()
       .isIn(["Engineering Manager", "Technical Product Owner", "Engineer"]),
     body("workday_id").optional().trim(),
-    body("hire_date").optional().isISO8601(),
+    body("hire_date").isISO8601(),
   ],
   async (req, res) => {
     try {

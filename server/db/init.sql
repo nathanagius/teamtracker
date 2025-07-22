@@ -174,3 +174,14 @@ INSERT INTO capabilities (name, description, category) VALUES
 INSERT INTO users (first_name, last_name, email, role, app_role)
 VALUES ('Super', 'Admin', 'admin@teamtracker.local', 'Engineering Manager', 'super_admin')
 ON CONFLICT (email) DO NOTHING; 
+('Leadership', 'Ability to lead and mentor team members', 'Management'); 
+
+-- User learning needs table
+CREATE TABLE user_learning_needs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    skill_id UUID REFERENCES skills(id) ON DELETE CASCADE,
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(user_id, skill_id)
+); 

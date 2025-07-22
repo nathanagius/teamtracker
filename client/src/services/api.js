@@ -53,6 +53,9 @@ export const usersAPI = {
   search: (query) => api.get(`/users/search/${query}`),
   updateRole: (id, app_role) => api.put(`/users/${id}/role`, { app_role }),
   assignTeamLead: (data) => api.put("/users/assign-lead", data),
+  getUserLearningNeeds: (userId) => api.get(`/users/${userId}/learning-needs`),
+  addUserLearningNeed: (userId, skillId, notes) => api.post(`/users/${userId}/learning-needs`, { skill_id: skillId, notes }),
+  removeUserLearningNeed: (userId, skillId) => api.delete(`/users/${userId}/learning-needs/${skillId}`),
 };
 
 // Team Members API
@@ -140,5 +143,10 @@ export const auditAPI = {
   getSummary: () => api.get("/audit/summary"),
   getRecent: (limit) => api.get("/audit/recent", { params: { limit } }),
 };
+
+export async function importWorkdayUsers() {
+  const response = await api.post('/import-workday');
+  return response.data;
+}
 
 export default api;
