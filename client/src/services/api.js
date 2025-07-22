@@ -51,6 +51,9 @@ export const usersAPI = {
   delete: (id) => api.delete(`/users/${id}`),
   getByRole: (role) => api.get(`/users/role/${role}`),
   search: (query) => api.get(`/users/search/${query}`),
+  getUserLearningNeeds: (userId) => api.get(`/users/${userId}/learning-needs`),
+  addUserLearningNeed: (userId, skillId, notes) => api.post(`/users/${userId}/learning-needs`, { skill_id: skillId, notes }),
+  removeUserLearningNeed: (userId, skillId) => api.delete(`/users/${userId}/learning-needs/${skillId}`),
 };
 
 // Team Members API
