@@ -99,6 +99,13 @@ function Dashboard() {
 
   return (
     <div className="space-y-6">
+      {/* People Working Graphic */}
+      <div className="flex justify-center">
+        <<img src="https://www.freepik.com/free-photo/happy-colleagues-sitting-office-coworking_8078308.htm#fromView=keyword&page=1&position=0&uuid=6c7d5413-37c6-456d-9193-5c784eb100bb&query=People+Working
+        " alt="Team Photo" style="max-width:100%; height:auto;" /
+          </g>
+        </svg>
+      </div>
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-bbc-red">Dashboard</h1>

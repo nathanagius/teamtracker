@@ -130,6 +130,7 @@ CREATE TABLE audit_log (
     old_values JSONB,
     new_values JSONB,
     user_id UUID REFERENCES users(id),
+    summary TEXT,
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

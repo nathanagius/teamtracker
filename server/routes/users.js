@@ -4,6 +4,16 @@ const db = require("../config/database");
 const { body, validationResult } = require("express-validator");
 const axios = require('axios');
 
+// Helper to log audit actions
+const ADMIN_USER_ID = '6c014097-ce43-4919-90a9-4311a65f2876';
+async function logAudit({ table, recordId, action, oldValues, newValues, summary, userId = ADMIN_USER_ID }) {
+  await db.query(
+    `INSERT INTO audit_log (table_name, record_id, action, old_values, new_values, user_id, timestamp, summary)
+     VALUES ($1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP, $7)`,
+    [table, recordId, action, oldValues ? JSON.stringify(oldValues) : null, newValues ? JSON.stringify(newValues) : null, userId, summary]
+  );
+}
+
 // Get all users
 router.get("/", async (req, res) => {
   try {
@@ -134,6 +144,15 @@ router.post(
         [first_name, last_name, email, role, workday_id, hire_date]
       );
 
+      await logAudit({
+        table: 'users',
+        recordId: result.rows[0].id,
+        action: 'INSERT',
+        oldValues: null,
+        newValues: result.rows[0],
+        summary: `Created user ${result.rows[0].first_name} ${result.rows[0].last_name}`,
+      });
+
       res.status(201).json(result.rows[0]);
     } catch (err) {
       console.error(err);
@@ -191,6 +210,15 @@ router.put(
         return res.status(404).json({ error: "User not found" });
       }
 
+      await logAudit({
+        table: 'users',
+        recordId: result.rows[0].id,
+        action: 'UPDATE',
+        oldValues: null, // Fetch old user before update if needed
+        newValues: result.rows[0],
+        summary: `Updated user ${result.rows[0].first_name} ${result.rows[0].last_name}`,
+      });
+
       res.json(result.rows[0]);
     } catch (err) {
       console.error(err);
@@ -229,6 +257,15 @@ router.delete("/:id", async (req, res) => {
     if (result.rows.length === 0) {
       return res.status(404).json({ error: "User not found" });
     }
+
+    await logAudit({
+      table: 'users',
+      recordId: id,
+      action: 'DELETE',
+      oldValues: result.rows[0],
+      newValues: null,
+      summary: `Deleted user ${result.rows[0]?.first_name || ''} ${result.rows[0]?.last_name || ''}`,
+    });
 
     res.json({ message: "User deleted successfully" });
   } catch (err) {
