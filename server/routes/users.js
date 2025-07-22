@@ -292,4 +292,66 @@ router.get("/search/:query", async (req, res) => {
   }
 });
 
+// Get user learning needs
+router.get("/:id/learning-needs", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await db.query(
+      `
+      SELECT ul.id, ul.skill_id, s.name as skill_name, ul.notes, ul.created_at
+      FROM user_learning_needs ul
+      JOIN skills s ON ul.skill_id = s.id
+      WHERE ul.user_id = $1
+      ORDER BY ul.created_at DESC
+      `,
+      [id]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch learning needs" });
+  }
+});
+
+// Add a learning need
+router.post("/:id/learning-needs", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { skill_id, notes } = req.body;
+    const result = await db.query(
+      `
+      INSERT INTO user_learning_needs (user_id, skill_id, notes)
+      VALUES ($1, $2, $3)
+      ON CONFLICT (user_id, skill_id) DO NOTHING
+      RETURNING *
+      `,
+      [id, skill_id, notes || null]
+    );
+    res.status(201).json(result.rows[0] || {});
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to add learning need" });
+  }
+});
+
+// Remove a learning need
+router.delete("/:id/learning-needs/:skillId", async (req, res) => {
+  try {
+    const { id, skillId } = req.params;
+    const result = await db.query(
+      `
+      DELETE FROM user_learning_needs WHERE user_id = $1 AND skill_id = $2 RETURNING *
+      `,
+      [id, skillId]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Learning need not found" });
+    }
+    res.json({ message: "Learning need removed" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to remove learning need" });
+  }
+});
+
 module.exports = router;

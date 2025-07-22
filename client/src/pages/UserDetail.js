@@ -67,9 +67,19 @@ function UserDetail() {
     }
   };
 
+  const fetchLearningNeeds = async () => {
+    try {
+      const res = await usersAPI.getUserLearningNeeds(id);
+      setLearningNeeds(res.data);
+    } catch (err) {
+      // ignore
+    }
+  };
+
   useEffect(() => {
     fetchUser();
     fetchSkills();
+    fetchLearningNeeds();
     // eslint-disable-next-line
   }, [id]);
 
@@ -142,10 +152,11 @@ function UserDetail() {
         setAssessmentFailed(true);
         setShowAssessment(false);
         setError("You need training for this skill before it can be added.");
-        // Add to learning needs if not already present
+        // Add to learning needs in backend
         const skill = allSkills.find(s => s.id === addForm.skill_id);
-        if (skill && !learningNeeds.includes(skill.name)) {
-          setLearningNeeds([...learningNeeds, skill.name]);
+        if (skill) {
+          await usersAPI.addUserLearningNeed(id, skill.id, "Failed assessment");
+          fetchLearningNeeds();
         }
       }
       return;
@@ -289,8 +300,8 @@ function UserDetail() {
         <div className="bg-yellow-50 p-4 rounded shadow">
           <h3 className="font-semibold text-yellow-800 mb-2">Learning Needs</h3>
           <ul className="list-disc pl-6">
-            {learningNeeds.map((skill, idx) => (
-              <li key={idx}>{skill}</li>
+            {learningNeeds.map((need, idx) => (
+              <li key={need.skill_id}>{need.skill_name}</li>
             ))}
           </ul>
           <p className="text-yellow-700 mt-2 text-sm">You need training for these skills before you can add them.</p>
