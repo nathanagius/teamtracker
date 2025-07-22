@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Plus, Search, Users as UsersIcon, X } from "lucide-react";
+import { Plus, Search, Trash2, Users as UsersIcon, X, Eye } from "lucide-react";
 import { usersAPI, fetchUserPerformanceRatings } from "../services/api";
 
 function Users() {
@@ -22,6 +22,7 @@ function Users() {
   const [locationQuery, setLocationQuery] = useState("");
   const [locationResults, setLocationResults] = useState([]);
   const [locationLoading, setLocationLoading] = useState(false);
+  const [deletingUserId, setDeletingUserId] = useState(null);
   const [performanceRatings, setPerformanceRatings] = useState({});
 
   useEffect(() => {
@@ -119,6 +120,19 @@ function Users() {
     setFormData((prev) => ({ ...prev, location: place.display_name }));
     setLocationResults([]);
     setLocationQuery("");
+  };
+
+  const handleDeleteUser = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this user? This cannot be undone.")) return;
+    setDeletingUserId(id);
+    try {
+      await usersAPI.delete(id);
+      fetchUsers();
+    } catch (error) {
+      alert(error?.response?.data?.error || "Failed to delete user.");
+    } finally {
+      setDeletingUserId(null);
+    }
   };
 
   const filteredUsers = users.filter(
@@ -245,11 +259,22 @@ function Users() {
             <div className="flex items-center justify-between pt-4 border-t border-gray-200">
               <Link
                 to={`/users/${user.id}`}
-                className="btn btn-secondary text-sm"
+                className="btn btn-secondary text-sm flex items-center"
               >
+                <Eye className="h-4 w-4 mr-1" />
                 View Details
               </Link>
+              <div className="flex space-x-2">
+              <button
+                onClick={() => handleDeleteUser(user.id)}
+                className="btn btn-danger text-sm flex items-center"
+                disabled={deletingUserId === user.id}
+              >
+                <Trash2 className="h-4 w-4 mr-1" />
+                {deletingUserId === user.id ? "Deleting..." : "Delete"}
+              </button>
             </div>
+          </div>
           </div>
         ))}
       </div>
