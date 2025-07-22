@@ -1,12 +1,34 @@
 import React, { useEffect, useState } from "react";
 import { skillsAPI } from "../services/api";
 
+const SKILL_QUESTIONS = {
+  "JavaScript": [
+    "What is a closure?",
+    "Explain event delegation.",
+    "How does prototypal inheritance work?"
+  ],
+  "React": [
+    "What is a React hook?",
+    "How does the virtual DOM work?",
+    "Explain the useEffect hook."
+  ],
+  "Node.js": [
+    "What is the event loop?",
+    "How do you handle async operations?",
+    "Explain middleware in Express."
+  ],
+  // Add more skills and questions as needed
+};
+
 function Skills() {
   const [skills, setSkills] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [form, setForm] = useState({ name: "", category: "", description: "" });
   const [editingId, setEditingId] = useState(null);
+  const [showAssessment, setShowAssessment] = useState(false);
+  const [assessmentAnswers, setAssessmentAnswers] = useState([]);
+  const [assessmentQuestions, setAssessmentQuestions] = useState([]);
 
   const fetchSkills = async () => {
     setLoading(true);
@@ -28,8 +50,30 @@ function Skills() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  const handleAssessmentAnswer = (idx, value) => {
+    setAssessmentAnswers((prev) => {
+      const copy = [...prev];
+      copy[idx] = value;
+      return copy;
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!editingId) {
+      // Only for adding new skill, show assessment if questions exist
+      const questions = SKILL_QUESTIONS[form.name.trim()];
+      if (questions && questions.length > 0) {
+        setAssessmentQuestions(questions);
+        setAssessmentAnswers(Array(questions.length).fill(""));
+        setShowAssessment(true);
+        return;
+      }
+    }
+    await actuallySaveSkill();
+  };
+
+  const actuallySaveSkill = async () => {
     try {
       if (editingId) {
         await skillsAPI.update(editingId, form);
@@ -38,6 +82,9 @@ function Skills() {
       }
       setForm({ name: "", category: "", description: "" });
       setEditingId(null);
+      setShowAssessment(false);
+      setAssessmentAnswers([]);
+      setAssessmentQuestions([]);
       fetchSkills();
     } catch (err) {
       setError("Failed to save skill");
@@ -62,6 +109,19 @@ function Skills() {
   const handleCancel = () => {
     setForm({ name: "", category: "", description: "" });
     setEditingId(null);
+    setShowAssessment(false);
+    setAssessmentAnswers([]);
+    setAssessmentQuestions([]);
+  };
+
+  const handleAssessmentConfirm = async () => {
+    // Optionally: validate answers (e.g., not empty)
+    if (assessmentAnswers.some((a) => !a.trim())) {
+      setError("Please answer all assessment questions.");
+      return;
+    }
+    setError("");
+    await actuallySaveSkill();
   };
 
   return (
@@ -80,6 +140,7 @@ function Skills() {
             placeholder="Skill Name"
             className="input input-bordered flex-1"
             required
+            disabled={!!editingId}
           />
           <input
             type="text"
@@ -102,13 +163,34 @@ function Skills() {
           <button type="submit" className="btn btn-primary">
             {editingId ? "Update Skill" : "Add Skill"}
           </button>
-          {editingId && (
+          {(editingId || showAssessment) && (
             <button type="button" className="btn btn-secondary" onClick={handleCancel}>
               Cancel
             </button>
           )}
         </div>
       </form>
+      {showAssessment && (
+        <div className="bg-gray-100 p-4 rounded shadow space-y-4">
+          <h2 className="text-lg font-semibold">Skill Assessment for {form.name}</h2>
+          <p className="text-gray-600">Please answer the following questions before adding this skill:</p>
+          <form onSubmit={e => { e.preventDefault(); handleAssessmentConfirm(); }}>
+            {assessmentQuestions.map((q, idx) => (
+              <div key={idx} className="mb-2">
+                <label className="block font-medium mb-1">{q}</label>
+                <input
+                  type="text"
+                  className="input input-bordered w-full"
+                  value={assessmentAnswers[idx] || ""}
+                  onChange={e => handleAssessmentAnswer(idx, e.target.value)}
+                  required
+                />
+              </div>
+            ))}
+            <button type="submit" className="btn btn-success mt-2">Confirm & Add Skill</button>
+          </form>
+        </div>
+      )}
       {error && <div className="text-red-500">{error}</div>}
       {loading ? (
         <div>Loading skills...</div>
