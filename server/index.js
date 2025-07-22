@@ -17,6 +17,11 @@ app.use(express.urlencoded({ extended: true }));
 // Database connection
 const db = require("./config/database");
 
+// Health check endpoint
+app.get("/api/health", (req, res) => {
+  res.json({ status: "OK", timestamp: new Date().toISOString() });
+});
+
 // Routes
 app.use("/api/teams", require("./routes/teams"));
 app.use("/api/users", require("./routes/users"));
@@ -29,11 +34,6 @@ app.use("/api/changes", require("./routes/changes"));
 app.use("/api/audit", require("./routes/audit"));
 // Register users route at /api for import-workday endpoint
 app.use("/api", require("./routes/users"));
-
-// Health check endpoint
-app.get("/api/health", (req, res) => {
-  res.json({ status: "OK", timestamp: new Date().toISOString() });
-});
 
 // Error handling middleware
 app.use((err, req, res, next) => {
