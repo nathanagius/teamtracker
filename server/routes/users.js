@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const db = require("../config/database");
 const { body, validationResult } = require("express-validator");
+const axios = require('axios');
 
 // Get all users
 router.get("/", async (req, res) => {
@@ -289,6 +290,48 @@ router.get("/search/:query", async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to search users" });
+  }
+});
+
+// POST /import-workday - Import users from Workday API
+router.post('/import-workday', async (req, res) => {
+  try {
+    // Fetch all workers from the mock Workday API
+    let allWorkers = [];
+    let offset = 0;
+    const limit = 50;
+    let hasMore = true;
+    while (hasMore) {
+      const response = await axios.get(`http://localhost:4000/workers?offset=${offset}&limit=${limit}`);
+      const { workers, count } = response.data;
+      allWorkers = allWorkers.concat(workers);
+      offset += count;
+      hasMore = count === limit;
+    }
+
+    // Upsert users into the database
+    const client = req.app.get('db');
+    let upserted = 0;
+    for (const worker of allWorkers) {
+      const { id, firstName, lastName, email, workerType, hireDate, userName } = worker;
+      // Use workday_id as the Workday worker id
+      await client.query(
+        `INSERT INTO users (workday_id, first_name, last_name, email, role, hire_date)
+         VALUES ($1, $2, $3, $4, $5, $6)
+         ON CONFLICT (workday_id) DO UPDATE SET
+           first_name = EXCLUDED.first_name,
+           last_name = EXCLUDED.last_name,
+           email = EXCLUDED.email,
+           role = EXCLUDED.role,
+           hire_date = EXCLUDED.hire_date`,
+        [id, firstName, lastName, email, 'Engineer', hireDate]
+      );
+      upserted++;
+    }
+    res.json({ message: `Imported ${upserted} users from Workday.` });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to import users from Workday.' });
   }
 });
 

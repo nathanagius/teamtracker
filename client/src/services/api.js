@@ -139,4 +139,9 @@ export const auditAPI = {
   getRecent: (limit) => api.get("/audit/recent", { params: { limit } }),
 };
 
+export async function importWorkdayUsers() {
+  const response = await api.post('/import-workday');
+  return response.data;
+}
+
 export default api;
