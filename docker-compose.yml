@@ -56,6 +56,16 @@ services:
     networks:
       - team-tracker-network
 
+  mock-workday:
+    build:
+      context: ./mock-workday
+      dockerfile: Dockerfile
+    container_name: mock-workday
+    ports:
+      - "4000:4000"
+    networks:
+      - team-tracker-network
+
 volumes:
   postgres_data:
 
