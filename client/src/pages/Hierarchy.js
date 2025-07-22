@@ -62,8 +62,11 @@ function Hierarchy() {
   return (
     <div className="space-y-6 max-w-3xl mx-auto">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Team Hierarchy</h1>
-        <p className="text-gray-600">View and manage team reporting relationships (drag and drop to rearrange)</p>
+        <h1 className="text-3xl font-bold text-bbc-red">Team Hierarchy</h1>
+        <p className="text-bbc-black">View and manage team reporting relationships (drag and drop to rearrange)</p>
+      </div>
+      <div className="card shadow-none border-bbc-grey">
+        <p className="text-bbc-black">Team hierarchy visualization coming soon...</p>
       </div>
       {error && <div className="text-red-500">{error}</div>}
       {loading ? (
@@ -84,7 +87,7 @@ function Hierarchy() {
                       onClick={onToggle}
                       className="text-gray-400 hover:text-gray-700"
                     >
-                      {isOpen ? "▼" : "▶"}
+                      {isOpen ? "\u25bc" : "\u25b6"}
                     </button>
                   )}
                   <span className="font-medium text-gray-800">{node.text}</span>
