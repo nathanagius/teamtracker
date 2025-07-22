@@ -44,6 +44,7 @@ function UserDetail() {
   const [adding, setAdding] = useState(false);
   const [currentProficiency, setCurrentProficiency] = useState(1);
   const [assessmentFailed, setAssessmentFailed] = useState(false);
+  const [learningNeeds, setLearningNeeds] = useState([]);
 
   const fetchUser = async () => {
     setLoading(true);
@@ -140,7 +141,12 @@ function UserDetail() {
       } else {
         setAssessmentFailed(true);
         setShowAssessment(false);
-        setError("Assessment failed. You cannot add this skill at this time.");
+        setError("You need training for this skill before it can be added.");
+        // Add to learning needs if not already present
+        const skill = allSkills.find(s => s.id === addForm.skill_id);
+        if (skill && !learningNeeds.includes(skill.name)) {
+          setLearningNeeds([...learningNeeds, skill.name]);
+        }
       }
       return;
     }
@@ -279,6 +285,17 @@ function UserDetail() {
           </div>
         )}
       </div>
+      {learningNeeds.length > 0 && (
+        <div className="bg-yellow-50 p-4 rounded shadow">
+          <h3 className="font-semibold text-yellow-800 mb-2">Learning Needs</h3>
+          <ul className="list-disc pl-6">
+            {learningNeeds.map((skill, idx) => (
+              <li key={idx}>{skill}</li>
+            ))}
+          </ul>
+          <p className="text-yellow-700 mt-2 text-sm">You need training for these skills before you can add them.</p>
+        </div>
+      )}
     </div>
   );
 }
