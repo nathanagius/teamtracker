@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Plus, Search, Users as UsersIcon, X } from "lucide-react";
+import { Plus, Search, Users as UsersIcon, X, Eye } from "lucide-react";
 import { usersAPI, teamsAPI } from "../services/api";
 import { useAuth } from "../components/AuthContext";
 
@@ -28,11 +28,33 @@ function Users() {
   const [teams, setTeams] = useState([]);
   const [roleUpdating, setRoleUpdating] = useState({});
   const [leadUpdating, setLeadUpdating] = useState({});
+  const [performanceRatings, setPerformanceRatings] = useState({});
 
   useEffect(() => {
     fetchUsers();
     if (isSuperAdmin) fetchTeams();
   }, [isSuperAdmin]);
+
+  useEffect(() => {
+    // Fetch performance ratings for all users after users are loaded
+    if (users.length > 0) {
+      users.forEach((user) => {
+        fetchUserPerformanceRatings(user.id)
+          .then((data) => {
+            setPerformanceRatings((prev) => ({
+              ...prev,
+              [user.id]: data.ratings,
+            }));
+          })
+          .catch(() => {
+            setPerformanceRatings((prev) => ({
+              ...prev,
+              [user.id]: null,
+            }));
+          });
+      });
+    }
+  }, [users]);
 
   const fetchUsers = async () => {
     try {
@@ -140,6 +162,17 @@ function Users() {
     }
   };
 
+  const fetchUserPerformanceRatings = async (userId) => {
+    try {
+      const response = await fetch(`/api/users/workday/performance/${userId}`);
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Error fetching performance ratings:", error);
+      return { ratings: [] };
+    }
+  };
+
   const filteredUsers = users.filter(
     (user) =>
       user.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -172,8 +205,8 @@ function Users() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Users</h1>
-          <p className="text-gray-600">
+          <h1 className="text-3xl font-bold text-bbc-red">Users</h1>
+          <p className="text-bbc-black">
             Manage team members and their profiles
           </p>
         </div>
@@ -266,7 +299,7 @@ function Users() {
       {/* Users Grid */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {filteredUsers.map((user) => (
-          <div key={user.id} className="card">
+          <div key={user.id} className="card shadow-none border-bbc-grey">
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">
@@ -319,8 +352,9 @@ function Users() {
             <div className="flex items-center justify-between pt-4 border-t border-gray-200">
               <Link
                 to={`/users/${user.id}`}
-                className="btn btn-secondary text-sm"
+                className="btn btn-secondary text-sm flex items-center"
               >
+                <Eye className="h-4 w-4 mr-1" />
                 View Details
               </Link>
             </div>

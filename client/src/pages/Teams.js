@@ -67,8 +67,8 @@ function Teams() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Teams</h1>
-          <p className="text-gray-600">Manage your teams and their members</p>
+          <h1 className="text-3xl font-bold text-bbc-red">Teams</h1>
+          <p className="text-bbc-black">Manage your teams and their members</p>
         </div>
         <button
           onClick={() => setShowCreateModal(true)}
@@ -87,21 +87,21 @@ function Teams() {
           placeholder="Search teams..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="input pl-10"
+          className="input pl-10 border-bbc-grey"
         />
       </div>
 
       {/* Teams Grid */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {filteredTeams.map((team) => (
-          <div key={team.id} className="card">
+          <div key={team.id} className="card shadow-none border-bbc-grey">
             <div className="flex items-start justify-between">
               <div className="flex-1">
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                <h3 className="text-lg font-semibold text-bbc-black mb-2">
                   {team.name}
                 </h3>
                 {team.description && (
-                  <p className="text-gray-600 text-sm mb-4">
+                  <p className="text-bbc-black text-sm mb-4">
                     {team.description}
                   </p>
                 )}
@@ -111,7 +111,7 @@ function Teams() {
                 </div>
                 {team.capabilities && team.capabilities.length > 0 && (
                   <div className="mb-4">
-                    <p className="text-xs font-medium text-gray-700 mb-2">
+                    <p className="text-xs font-medium text-bbc-black mb-2">
                       Capabilities:
                     </p>
                     <div className="flex flex-wrap gap-1">
@@ -142,7 +142,7 @@ function Teams() {
                 className="btn btn-secondary text-sm flex items-center"
               >
                 <Eye className="h-4 w-4 mr-1" />
-                View
+                View Details
               </Link>
               <div className="flex space-x-2">
                 <button
@@ -161,7 +161,7 @@ function Teams() {
       {filteredTeams.length === 0 && (
         <div className="text-center py-12">
           <Users className="mx-auto h-12 w-12 text-gray-400" />
-          <h3 className="mt-2 text-sm font-medium text-gray-900">
+          <h3 className="mt-2 text-sm font-medium text-bbc-black">
             No teams found
           </h3>
           <p className="mt-1 text-sm text-gray-500">
@@ -188,7 +188,7 @@ function Teams() {
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
           <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
             <div className="mt-3">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
+              <h3 className="text-lg font-medium text-bbc-black mb-4">
                 Create New Team
               </h3>
               <form onSubmit={handleCreateTeam} className="space-y-4">
@@ -200,7 +200,7 @@ function Teams() {
                     onChange={(e) =>
                       setNewTeam({ ...newTeam, name: e.target.value })
                     }
-                    className="input"
+                    className="input border-bbc-grey"
                     required
                   />
                 </div>
@@ -211,7 +211,7 @@ function Teams() {
                     onChange={(e) =>
                       setNewTeam({ ...newTeam, description: e.target.value })
                     }
-                    className="input"
+                    className="input border-bbc-grey"
                     rows="3"
                   />
                 </div>

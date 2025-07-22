@@ -149,4 +149,10 @@ export async function importWorkdayUsers() {
   return response.data;
 }
 
+// Fetch performance ratings for a user from the mock Workday API
+export async function fetchUserPerformanceRatings(userId) {
+  const response = await api.get(`/users/workday/performance/${userId}`);
+  return response.data;
+}
+
 export default api;

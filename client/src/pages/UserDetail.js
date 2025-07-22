@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { usersAPI, skillsAPI } from "../services/api";
 
 const SKILL_QUESTIONS = {
@@ -45,6 +45,8 @@ function UserDetail() {
   const [currentProficiency, setCurrentProficiency] = useState(1);
   const [assessmentFailed, setAssessmentFailed] = useState(false);
   const [learningNeeds, setLearningNeeds] = useState([]);
+  const navigate = useNavigate();
+  const [deleting, setDeleting] = useState(false);
 
   const fetchUser = async () => {
     setLoading(true);
@@ -175,20 +177,40 @@ function UserDetail() {
     }
   };
 
+  const handleDeleteUser = async () => {
+    if (!window.confirm("Are you sure you want to delete this user? This cannot be undone.")) return;
+    setDeleting(true);
+    try {
+      await usersAPI.delete(id);
+      navigate("/users");
+    } catch (error) {
+      setError(error?.response?.data?.error || "Failed to delete user.");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   if (loading) return <div>Loading user...</div>;
   if (error) return <div className="text-red-500">{error}</div>;
   if (!user) return <div>User not found.</div>;
 
   return (
     <div className="space-y-6 max-w-3xl mx-auto">
-      <div>
+      <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-bold text-gray-900">User Details</h1>
-        <p className="text-gray-600">User ID: {user.id}</p>
-        <div className="mt-2">
-          <div><span className="font-semibold">Name:</span> {user.first_name} {user.last_name}</div>
-          <div><span className="font-semibold">Email:</span> {user.email}</div>
-          <div><span className="font-semibold">Role:</span> {user.role}</div>
-        </div>
+        <button
+          className="btn btn-error"
+          onClick={handleDeleteUser}
+          disabled={deleting}
+        >
+          {deleting ? "Deleting..." : "Delete User"}
+        </button>
+      </div>
+      <p className="text-gray-600">User ID: {user.id}</p>
+      <div className="mt-2">
+        <div><span className="font-semibold">Name:</span> {user.first_name} {user.last_name}</div>
+        <div><span className="font-semibold">Email:</span> {user.email}</div>
+        <div><span className="font-semibold">Role:</span> {user.role}</div>
       </div>
       <div>
         <h2 className="text-xl font-semibold mb-2">Skills</h2>

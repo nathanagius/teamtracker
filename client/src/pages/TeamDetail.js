@@ -54,8 +54,8 @@ function TeamDetail() {
     <div className="space-y-6 max-w-3xl mx-auto">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Team Details</h1>
-          <p className="text-gray-600">Team ID: {team.id}</p>
+          <h1 className="text-3xl font-bold text-bbc-red">Team Details</h1>
+          <p className="text-bbc-black">Team ID: {team.id}</p>
         </div>
         <button className="btn btn-outline" onClick={() => setEditMode((v) => !v)}>
           {editMode ? "Cancel" : "Edit"}
@@ -69,7 +69,7 @@ function TeamDetail() {
               name="name"
               value={editForm.name}
               onChange={handleEditChange}
-              className="input input-bordered flex-1"
+              className="input input-bordered flex-1 border-bbc-grey"
               required
             />
             <input
@@ -77,7 +77,7 @@ function TeamDetail() {
               name="description"
               value={editForm.description}
               onChange={handleEditChange}
-              className="input input-bordered flex-1"
+              className="input input-bordered flex-1 border-bbc-grey"
               placeholder="Description"
             />
           </div>

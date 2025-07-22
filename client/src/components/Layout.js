@@ -1,35 +1,7 @@
-import React, { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
-import {
-  Users,
-  Building2,
-  Brain,
-  Target,
-  GitBranch,
-  FileText,
-  CheckCircle,
-  Activity,
-  Menu,
-  X,
-  BarChart3,
-} from "lucide-react";
+import React from "react";
 import { useAuth } from "./AuthContext";
 
-const navigation = [
-  { name: "Dashboard", href: "/", icon: BarChart3 },
-  { name: "Teams", href: "/teams", icon: Building2 },
-  { name: "Users", href: "/users", icon: Users },
-  { name: "Skills", href: "/skills", icon: Brain },
-  { name: "Capabilities", href: "/capabilities", icon: Target },
-  { name: "Hierarchy", href: "/hierarchy", icon: GitBranch },
-  { name: "Changes", href: "/changes", icon: FileText },
-  { name: "Approvals", href: "/approvals", icon: CheckCircle },
-  { name: "Audit", href: "/audit", icon: Activity },
-];
-
 function Layout({ children }) {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const location = useLocation();
   const { user, logout } = useAuth();
   // Role-based nav
   const isSuperAdmin = user?.app_role === "super_admin";

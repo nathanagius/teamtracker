@@ -28,6 +28,24 @@ module.exports = {
           800: "#1e293b",
           900: "#0f172a",
         },
+        bbc: {
+          red: '#B80000',
+          black: '#000000',
+          white: '#FFFFFF',
+          grey: {
+            light: '#F5F5F5',
+            DEFAULT: '#B1B3B6',
+            dark: '#3A3A3A',
+          },
+        },
+      },
+      fontFamily: {
+        sans: [
+          'BBC Reith Sans',
+          'Arial',
+          'Helvetica',
+          'sans-serif',
+        ],
       },
     },
   },

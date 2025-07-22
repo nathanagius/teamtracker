@@ -4,15 +4,15 @@ function Capabilities() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">
+        <h1 className="text-3xl font-bold text-bbc-red">
           Capabilities Management
         </h1>
-        <p className="text-gray-600">
+        <p className="text-bbc-black">
           Manage team capabilities and strength levels
         </p>
       </div>
-      <div className="card">
-        <p className="text-gray-600">
+      <div className="card shadow-none border-bbc-grey">
+        <p className="text-bbc-black">
           Capabilities management page coming soon...
         </p>
       </div>

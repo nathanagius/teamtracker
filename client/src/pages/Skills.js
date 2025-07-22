@@ -127,8 +127,8 @@ function Skills() {
   return (
     <div className="space-y-6 max-w-3xl mx-auto">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Skills Management</h1>
-        <p className="text-gray-600">Manage skills and proficiency levels</p>
+        <h1 className="text-3xl font-bold text-bbc-red">Skills Management</h1>
+        <p className="text-bbc-black">Manage skills and proficiency levels</p>
       </div>
       <form onSubmit={handleSubmit} className="bg-white p-4 rounded shadow space-y-4">
         <div className="flex flex-col md:flex-row gap-4">
@@ -171,9 +171,9 @@ function Skills() {
         </div>
       </form>
       {showAssessment && (
-        <div className="bg-gray-100 p-4 rounded shadow space-y-4">
+        <div className="bg-white p-4 rounded shadow space-y-4">
           <h2 className="text-lg font-semibold">Skill Assessment for {form.name}</h2>
-          <p className="text-gray-600">Please answer the following questions before adding this skill:</p>
+          <p className="text-bbc-black">Please answer the following questions before adding this skill:</p>
           <form onSubmit={e => { e.preventDefault(); handleAssessmentConfirm(); }}>
             {assessmentQuestions.map((q, idx) => (
               <div key={idx} className="mb-2">
@@ -223,7 +223,7 @@ function Skills() {
               ))}
               {skills.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="text-center py-4 text-gray-500">
+                  <td colSpan={4} className="text-center py-4 text-bbc-black">
                     No skills found.
                   </td>
                 </tr>

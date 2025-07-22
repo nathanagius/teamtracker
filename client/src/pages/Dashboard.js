@@ -101,8 +101,8 @@ function Dashboard() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600">Overview of your team management system</p>
+        <h1 className="text-3xl font-bold text-bbc-red">Dashboard</h1>
+        <p className="text-bbc-black">Overview of your team management system</p>
       </div>
 
       {/* Stats Grid */}
@@ -118,8 +118,8 @@ function Dashboard() {
                 <stat.icon className="h-6 w-6 text-white" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">{stat.name}</p>
-                <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                <p className="text-sm font-medium text-bbc-black">{stat.name}</p>
+                <p className="text-2xl font-bold text-bbc-black">{stat.value}</p>
               </div>
             </div>
           </Link>
@@ -131,7 +131,7 @@ function Dashboard() {
         {/* Recent Teams */}
         <div className="card">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">
+            <h2 className="text-lg font-semibold text-bbc-black">
               Recent Teams
             </h2>
             <Link
@@ -145,11 +145,11 @@ function Dashboard() {
             {recentTeams.map((team) => (
               <div
                 key={team.id}
-                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                className="flex items-center justify-between p-3 bg-bbc-grey rounded-lg"
               >
                 <div>
-                  <h3 className="font-medium text-gray-900">{team.name}</h3>
-                  <p className="text-sm text-gray-600">
+                  <h3 className="font-medium text-bbc-black">{team.name}</h3>
+                  <p className="text-sm text-bbc-black">
                     {team.member_count} members
                   </p>
                 </div>
@@ -167,7 +167,7 @@ function Dashboard() {
         {/* Recent Users */}
         <div className="card">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">
+            <h2 className="text-lg font-semibold text-bbc-black">
               Recent Users
             </h2>
             <Link
@@ -181,13 +181,13 @@ function Dashboard() {
             {recentUsers.map((user) => (
               <div
                 key={user.id}
-                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                className="flex items-center justify-between p-3 bg-bbc-grey rounded-lg"
               >
                 <div>
-                  <h3 className="font-medium text-gray-900">
+                  <h3 className="font-medium text-bbc-black">
                     {user.first_name} {user.last_name}
                   </h3>
-                  <p className="text-sm text-gray-600">{user.role}</p>
+                  <p className="text-sm text-bbc-black">{user.role}</p>
                 </div>
                 <Link
                   to={`/users/${user.id}`}
@@ -203,7 +203,7 @@ function Dashboard() {
         {/* Pending Changes */}
         <div className="card lg:col-span-2">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">
+            <h2 className="text-lg font-semibold text-bbc-black">
               Pending Changes
             </h2>
             <Link
@@ -218,17 +218,17 @@ function Dashboard() {
               {pendingChanges.map((change) => (
                 <div
                   key={change.id}
-                  className="flex items-center justify-between p-3 bg-yellow-50 border border-yellow-200 rounded-lg"
+                  className="flex items-center justify-between p-3 bg-bbc-grey border border-bbc-grey rounded-lg"
                 >
                   <div>
-                    <h3 className="font-medium text-gray-900">
+                    <h3 className="font-medium text-bbc-black">
                       {change.request_type.replace("_", " ").toUpperCase()}
                     </h3>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-bbc-black">
                       Requested by {change.requester_first_name}{" "}
                       {change.requester_last_name}
                     </p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-bbc-black">
                       {new Date(change.created_at).toLocaleDateString()}
                     </p>
                   </div>
@@ -241,10 +241,10 @@ function Dashboard() {
           ) : (
             <div className="text-center py-8">
               <CheckCircle className="mx-auto h-12 w-12 text-green-500" />
-              <h3 className="mt-2 text-sm font-medium text-gray-900">
+              <h3 className="mt-2 text-sm font-medium text-bbc-black">
                 No pending changes
               </h3>
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 text-sm text-bbc-black">
                 All change requests have been processed.
               </p>
             </div>
@@ -254,34 +254,34 @@ function Dashboard() {
 
       {/* Quick Actions */}
       <div className="card">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">
+        <h2 className="text-lg font-semibold text-bbc-black mb-4">
           Quick Actions
         </h2>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Link
             to="/teams"
-            className="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            className="flex items-center p-3 border border-bbc-grey rounded-lg hover:bg-bbc-grey transition-colors"
           >
             <Building2 className="h-5 w-5 text-primary-600 mr-3" />
             <span className="text-sm font-medium">Create Team</span>
           </Link>
           <Link
             to="/users"
-            className="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            className="flex items-center p-3 border border-bbc-grey rounded-lg hover:bg-bbc-grey transition-colors"
           >
             <Users className="h-5 w-5 text-primary-600 mr-3" />
             <span className="text-sm font-medium">Add User</span>
           </Link>
           <Link
             to="/skills"
-            className="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            className="flex items-center p-3 border border-bbc-grey rounded-lg hover:bg-bbc-grey transition-colors"
           >
             <Brain className="h-5 w-5 text-primary-600 mr-3" />
             <span className="text-sm font-medium">Manage Skills</span>
           </Link>
           <Link
             to="/hierarchy"
-            className="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            className="flex items-center p-3 border border-bbc-grey rounded-lg hover:bg-bbc-grey transition-colors"
           >
             <TrendingUp className="h-5 w-5 text-primary-600 mr-3" />
             <span className="text-sm font-medium">View Hierarchy</span>
