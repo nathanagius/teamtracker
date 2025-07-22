@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { changesAPI } from "../services/api";
 
+//This is a placeholder to check code is being committed to main
+
 function Approvals() {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
