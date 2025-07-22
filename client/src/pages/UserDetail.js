@@ -298,7 +298,7 @@ function UserDetail() {
       </div>
       {learningNeeds.length > 0 && (
         <div className="bg-yellow-50 p-4 rounded shadow">
-          <h3 className="font-semibold text-yellow-800 mb-2">Learning Needs</h3>
+          <h3 className="font-semibold text-yellow-800 mb-2">Training Needed</h3>
           <ul className="list-disc pl-6">
             {learningNeeds.map((need, idx) => (
               <li key={need.skill_id}>{need.skill_name}</li>
