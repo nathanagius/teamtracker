@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Plus, Search, Users as UsersIcon, X } from "lucide-react";
-import { usersAPI } from "../services/api";
+import { usersAPI, teamsAPI } from "../services/api";
+import { useAuth } from "../components/AuthContext";
 
 function Users() {
   const [users, setUsers] = useState([]);
@@ -22,10 +23,16 @@ function Users() {
   const [locationQuery, setLocationQuery] = useState("");
   const [locationResults, setLocationResults] = useState([]);
   const [locationLoading, setLocationLoading] = useState(false);
+  const { user: currentUser } = useAuth();
+  const isSuperAdmin = currentUser?.app_role === "super_admin";
+  const [teams, setTeams] = useState([]);
+  const [roleUpdating, setRoleUpdating] = useState({});
+  const [leadUpdating, setLeadUpdating] = useState({});
 
   useEffect(() => {
     fetchUsers();
-  }, []);
+    if (isSuperAdmin) fetchTeams();
+  }, [isSuperAdmin]);
 
   const fetchUsers = async () => {
     try {
@@ -35,6 +42,15 @@ function Users() {
       console.error("Error fetching users:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchTeams = async () => {
+    try {
+      const res = await teamsAPI.getAll();
+      setTeams(res.data);
+    } catch (e) {
+      setTeams([]);
     }
   };
 
@@ -99,6 +115,31 @@ function Users() {
     setLocationQuery("");
   };
 
+  const handleRoleChange = async (userId, newRole) => {
+    setRoleUpdating((prev) => ({ ...prev, [userId]: true }));
+    try {
+      await usersAPI.updateRole(userId, newRole);
+      fetchUsers();
+    } catch (e) {
+      alert("Failed to update role");
+    } finally {
+      setRoleUpdating((prev) => ({ ...prev, [userId]: false }));
+    }
+  };
+
+  const handleAssignLead = async (teamId, userId) => {
+    setLeadUpdating((prev) => ({ ...prev, [teamId]: true }));
+    try {
+      await usersAPI.assignTeamLead({ team_id: teamId, user_id: userId });
+      fetchTeams();
+      fetchUsers();
+    } catch (e) {
+      alert("Failed to assign team lead");
+    } finally {
+      setLeadUpdating((prev) => ({ ...prev, [teamId]: false }));
+    }
+  };
+
   const filteredUsers = users.filter(
     (user) =>
       user.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -156,6 +197,71 @@ function Users() {
           className="input pl-10"
         />
       </div>
+
+      {/* Super Admin Panel */}
+      {isSuperAdmin && (
+        <div className="card mb-6">
+          <h2 className="text-lg font-semibold mb-2">
+            Super Admin: Manage User Roles & Team Leads
+          </h2>
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-sm">
+              <thead>
+                <tr className="border-b">
+                  <th className="p-2 text-left">Name</th>
+                  <th className="p-2 text-left">Email</th>
+                  <th className="p-2 text-left">App Role</th>
+                  <th className="p-2 text-left">Assign as Team Lead</th>
+                </tr>
+              </thead>
+              <tbody>
+                {users.map((u) => (
+                  <tr key={u.id} className="border-b">
+                    <td className="p-2">
+                      {u.first_name} {u.last_name}
+                    </td>
+                    <td className="p-2">{u.email}</td>
+                    <td className="p-2">
+                      <select
+                        value={u.app_role || "member"}
+                        onChange={(e) => handleRoleChange(u.id, e.target.value)}
+                        disabled={roleUpdating[u.id]}
+                        className="input"
+                      >
+                        <option value="super_admin">super_admin</option>
+                        <option value="team_lead">team_lead</option>
+                        <option value="member">member</option>
+                        <option value="read_only">read_only</option>
+                      </select>
+                    </td>
+                    <td className="p-2">
+                      <select
+                        value={teams.find((t) => t.lead_id === u.id)?.id || ""}
+                        onChange={(event) =>
+                          handleAssignLead(event.target.value, u.id)
+                        }
+                        disabled={
+                          leadUpdating[
+                            teams.find((t) => t.lead_id === u.id)?.id || ""
+                          ]
+                        }
+                        className="input"
+                      >
+                        <option value="">-- Assign to Team --</option>
+                        {teams.map((t) => (
+                          <option key={t.id} value={t.id}>
+                            {t.name}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       {/* Users Grid */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">

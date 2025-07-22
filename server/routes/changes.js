@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const db = require("../config/database");
 const { body, validationResult } = require("express-validator");
+const { requireAuth, requireRole } = require("./users");
 
 // Get all change requests
 router.get("/", async (req, res) => {
@@ -145,196 +146,89 @@ router.post(
   }
 );
 
-// Approve change request
-router.put(
-  "/:id/approve",
-  [body("approver_id").isUUID(), body("notes").optional().trim().escape()],
-  async (req, res) => {
-    try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-      }
-
-      const { id } = req.params;
-      const { approver_id, notes } = req.body;
-
-      // Start transaction
-      await db.query("BEGIN");
-
-      try {
-        // Get the change request
-        const changeRequest = await db.query(
-          `
-        SELECT * FROM change_requests WHERE id = $1 AND status = 'pending'
-      `,
-          [id]
-        );
-
-        if (changeRequest.rows.length === 0) {
-          throw new Error("Change request not found or not pending");
-        }
-
-        const request = changeRequest.rows[0];
-
-        // Execute the change based on request type
-        switch (request.request_type) {
-          case "add_member":
-            await db.query(
-              `
-            INSERT INTO team_members (team_id, user_id, start_date)
-            VALUES ($1, $2, $3)
-          `,
-              [
-                request.team_id,
-                request.user_id,
-                new Date().toISOString().split("T")[0],
-              ]
-            );
-            break;
-
-          case "remove_member":
-            await db.query(
-              `
-            UPDATE team_members 
-            SET end_date = $1, is_active = false, updated_at = CURRENT_TIMESTAMP
-            WHERE team_id = $2 AND user_id = $3 AND is_active = true
-          `,
-              [
-                new Date().toISOString().split("T")[0],
-                request.team_id,
-                request.user_id,
-              ]
-            );
-            break;
-
-          case "move_member":
-            const moveDetails = request.details;
-            // End current membership
-            await db.query(
-              `
-            UPDATE team_members 
-            SET end_date = $1, is_active = false, updated_at = CURRENT_TIMESTAMP
-            WHERE team_id = $2 AND user_id = $3 AND is_active = true
-          `,
-              [moveDetails.move_date, moveDetails.from_team_id, request.user_id]
-            );
-
-            // Start new membership
-            await db.query(
-              `
-            INSERT INTO team_members (team_id, user_id, start_date)
-            VALUES ($1, $2, $3)
-          `,
-              [moveDetails.to_team_id, request.user_id, moveDetails.move_date]
-            );
-            break;
-
-          case "create_team":
-            const teamDetails = request.details;
-            await db.query(
-              `
-            INSERT INTO teams (name, description)
-            VALUES ($1, $2)
-          `,
-              [teamDetails.name, teamDetails.description]
-            );
-            break;
-
-          case "update_team":
-            const updateDetails = request.details;
-            await db.query(
-              `
-            UPDATE teams 
-            SET name = COALESCE($1, name),
-                description = COALESCE($2, description),
-                updated_at = CURRENT_TIMESTAMP
-            WHERE id = $3
-          `,
-              [updateDetails.name, updateDetails.description, request.team_id]
-            );
-            break;
-
-          case "delete_team":
-            await db.query(
-              `
-            DELETE FROM teams WHERE id = $1
-          `,
-              [request.team_id]
-            );
-            break;
-        }
-
-        // Update change request status
-        const updateResult = await db.query(
-          `
-        UPDATE change_requests 
-        SET status = 'approved',
-            approved_by = $1,
-            approved_at = CURRENT_TIMESTAMP,
-            updated_at = CURRENT_TIMESTAMP
-        WHERE id = $2
-        RETURNING *
-      `,
-          [approver_id, id]
-        );
-
-        await db.query("COMMIT");
-
-        res.json(updateResult.rows[0]);
-      } catch (err) {
-        await db.query("ROLLBACK");
-        throw err;
-      }
-    } catch (err) {
-      console.error(err);
-      res
-        .status(500)
-        .json({ error: err.message || "Failed to approve change request" });
+// Approve a change request (only team lead of the team or super admin)
+router.put("/:id/approve", requireAuth, async (req, res) => {
+  const { id } = req.params;
+  try {
+    // Get the change request and team
+    const crRes = await db.query(
+      "SELECT * FROM change_requests WHERE id = $1",
+      [id]
+    );
+    if (crRes.rows.length === 0) {
+      return res.status(404).json({ error: "Change request not found" });
     }
-  }
-);
-
-// Reject change request
-router.put(
-  "/:id/reject",
-  [body("approver_id").isUUID(), body("notes").optional().trim().escape()],
-  async (req, res) => {
-    try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-      }
-
-      const { id } = req.params;
-      const { approver_id, notes } = req.body;
-
-      const result = await db.query(
-        `
-      UPDATE change_requests 
-      SET status = 'rejected',
-          approved_by = $1,
-          approved_at = CURRENT_TIMESTAMP,
-          updated_at = CURRENT_TIMESTAMP
-      WHERE id = $2 AND status = 'pending'
-      RETURNING *
-    `,
-        [approver_id, id]
-      );
-
-      if (result.rows.length === 0) {
-        return res
-          .status(404)
-          .json({ error: "Change request not found or not pending" });
-      }
-
-      res.json(result.rows[0]);
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: "Failed to reject change request" });
+    const change = crRes.rows[0];
+    const teamRes = await db.query("SELECT * FROM teams WHERE id = $1", [
+      change.team_id,
+    ]);
+    if (teamRes.rows.length === 0) {
+      return res.status(404).json({ error: "Team not found" });
     }
+    const team = teamRes.rows[0];
+    // Only super admin or team lead of the team can approve
+    if (
+      req.user.app_role !== "super_admin" &&
+      !(req.user.app_role === "team_lead" && req.user.id === team.lead_id)
+    ) {
+      return res
+        .status(403)
+        .json({
+          error: "Forbidden: only team lead or super admin can approve",
+        });
+    }
+    // Approve the request
+    const result = await db.query(
+      `UPDATE change_requests SET status = 'approved', approved_by = $1, approved_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP WHERE id = $2 RETURNING *`,
+      [req.user.id, id]
+    );
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to approve change request" });
   }
-);
+});
+
+// Reject a change request (only team lead of the team or super admin)
+router.put("/:id/reject", requireAuth, async (req, res) => {
+  const { id } = req.params;
+  try {
+    // Get the change request and team
+    const crRes = await db.query(
+      "SELECT * FROM change_requests WHERE id = $1",
+      [id]
+    );
+    if (crRes.rows.length === 0) {
+      return res.status(404).json({ error: "Change request not found" });
+    }
+    const change = crRes.rows[0];
+    const teamRes = await db.query("SELECT * FROM teams WHERE id = $1", [
+      change.team_id,
+    ]);
+    if (teamRes.rows.length === 0) {
+      return res.status(404).json({ error: "Team not found" });
+    }
+    const team = teamRes.rows[0];
+    // Only super admin or team lead of the team can reject
+    if (
+      req.user.app_role !== "super_admin" &&
+      !(req.user.app_role === "team_lead" && req.user.id === team.lead_id)
+    ) {
+      return res
+        .status(403)
+        .json({ error: "Forbidden: only team lead or super admin can reject" });
+    }
+    // Reject the request
+    const result = await db.query(
+      `UPDATE change_requests SET status = 'rejected', approved_by = $1, approved_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP WHERE id = $2 RETURNING *`,
+      [req.user.id, id]
+    );
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to reject change request" });
+  }
+});
 
 // Get pending change requests count
 router.get("/pending/count", async (req, res) => {

@@ -2,6 +2,8 @@ const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 const morgan = require("morgan");
+const usersRouter = require("./routes/users");
+const { requireAuth } = require("./routes/users");
 require("dotenv").config();
 
 const app = express();
@@ -10,7 +12,7 @@ const PORT = process.env.PORT || 3001;
 // Middleware
 app.use(helmet());
 app.use(cors());
-app.use(morgan("combined"));
+app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -19,7 +21,7 @@ const db = require("./config/database");
 
 // Routes
 app.use("/api/teams", require("./routes/teams"));
-app.use("/api/users", require("./routes/users"));
+app.use("/api/users", usersRouter);
 app.use("/api/skills", require("./routes/skills"));
 app.use("/api/capabilities", require("./routes/capabilities"));
 app.use("/api/team-members", require("./routes/teamMembers"));

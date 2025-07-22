@@ -3,6 +3,9 @@
 -- Create roles enum
 CREATE TYPE user_role AS ENUM ('Engineering Manager', 'Technical Product Owner', 'Engineer');
 
+-- Add app-level roles for RBAC
+CREATE TYPE app_role AS ENUM ('super_admin', 'team_lead', 'member', 'read_only');
+
 -- Create approval status enum
 CREATE TYPE approval_status AS ENUM ('pending', 'approved', 'rejected');
 
@@ -14,6 +17,7 @@ CREATE TABLE teams (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(255) NOT NULL UNIQUE,
     description TEXT,
+    lead_id UUID REFERENCES users(id),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -26,6 +30,7 @@ CREATE TABLE users (
     last_name VARCHAR(100) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     role user_role NOT NULL,
+    app_role app_role DEFAULT 'member',
     hire_date DATE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -163,4 +168,9 @@ INSERT INTO capabilities (name, description, category) VALUES
 ('DevOps', 'Ability to manage infrastructure and deployments', 'Operations'),
 ('Testing', 'Ability to write and execute tests', 'Quality'),
 ('Architecture', 'Ability to design system architecture', 'Design'),
-('Leadership', 'Ability to lead and mentor team members', 'Management'); 
+('Leadership', 'Ability to lead and mentor team members', 'Management');
+
+-- Insert default super admin
+INSERT INTO users (first_name, last_name, email, role, app_role)
+VALUES ('Super', 'Admin', 'admin@teamtracker.local', 'Engineering Manager', 'super_admin')
+ON CONFLICT (email) DO NOTHING; 

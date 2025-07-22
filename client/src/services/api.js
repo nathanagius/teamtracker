@@ -51,6 +51,8 @@ export const usersAPI = {
   delete: (id) => api.delete(`/users/${id}`),
   getByRole: (role) => api.get(`/users/role/${role}`),
   search: (query) => api.get(`/users/search/${query}`),
+  updateRole: (id, app_role) => api.put(`/users/${id}/role`, { app_role }),
+  assignTeamLead: (data) => api.put("/users/assign-lead", data),
 };
 
 // Team Members API
