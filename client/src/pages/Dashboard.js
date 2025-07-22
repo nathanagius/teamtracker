@@ -101,10 +101,11 @@ function Dashboard() {
     <div className="space-y-6">
       {/* People Working Graphic */}
       <div className="flex justify-center">
-        <<img src="https://www.freepik.com/free-photo/happy-colleagues-sitting-office-coworking_8078308.htm#fromView=keyword&page=1&position=0&uuid=6c7d5413-37c6-456d-9193-5c784eb100bb&query=People+Working
-        " alt="Team Photo" style="max-width:100%; height:auto;" /
-          </g>
-        </svg>
+        <img
+          src="https://img.freepik.com/free-photo/happy-colleagues-sitting-office-coworking_8078308.jpg"
+          alt="Team Photo"
+          style={{ maxWidth: "100%", height: "auto" }}
+        />
       </div>
       {/* Header */}
       <div>
