@@ -4,11 +4,11 @@ function Changes() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Change Requests</h1>
-        <p className="text-gray-600">View and manage team change requests</p>
+        <h1 className="text-3xl font-bold text-bbc-red">Change Requests</h1>
+        <p className="text-bbc-black">View and manage team change requests</p>
       </div>
-      <div className="card">
-        <p className="text-gray-600">
+      <div className="card shadow-none border-bbc-grey">
+        <p className="text-bbc-black">
           Change requests management coming soon...
         </p>
       </div>

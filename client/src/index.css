@@ -8,7 +8,15 @@
   }
 
   body {
-    @apply bg-gray-50 text-gray-900;
+    font-family: 'BBC Reith Sans', Arial, Helvetica, sans-serif;
+    background-color: #F5F5F5;
+    color: #000;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    color: #000;
   }
 }
 
@@ -18,11 +26,29 @@
   }
 
   .btn-primary {
-    @apply bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500;
+    background-color: #B80000;
+    color: #fff;
+    font-weight: 700;
+    border-radius: 0;
+    box-shadow: none;
+    border: none;
+    transition: background 0.2s;
+  }
+  .btn-primary:hover {
+    background-color: #8A0000;
   }
 
   .btn-secondary {
-    @apply bg-gray-200 text-gray-900 hover:bg-gray-300 focus:ring-gray-500;
+    background-color: #3A3A3A;
+    color: #fff;
+    font-weight: 700;
+    border-radius: 0;
+    box-shadow: none;
+    border: none;
+    transition: background 0.2s;
+  }
+  .btn-secondary:hover {
+    background-color: #222;
   }
 
   .btn-danger {
@@ -30,14 +56,29 @@
   }
 
   .card {
-    @apply bg-white rounded-lg shadow-sm border border-gray-200 p-6;
+    background: #fff;
+    border: 1px solid #B1B3B6;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 1.5rem;
   }
 
   .input {
-    @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent;
+    border-radius: 0;
+    border: 1px solid #B1B3B6;
+    background: #fff;
+    color: #000;
   }
 
   .label {
     @apply block text-sm font-medium text-gray-700 mb-1;
+  }
+
+  /* BBC accent for highlights */
+  .text-bbc-red {
+    color: #B80000;
+  }
+  .bg-bbc-red {
+    background-color: #B80000;
   }
 }

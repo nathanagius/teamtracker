@@ -292,4 +292,25 @@ router.get("/search/:query", async (req, res) => {
   }
 });
 
+// Mock Workday performance ratings endpoint
+const performanceRatings = [
+  'Exceeds Expectations',
+  'Meets Expectations',
+  'Below Expectations',
+  'Outstanding',
+  'Needs Improvement',
+];
+
+// Returns an array of { year, rating } for the last 3 years
+router.get('/workday/performance/:userId', (req, res) => {
+  const { userId } = req.params;
+  const currentYear = new Date().getFullYear();
+  // Generate mock ratings
+  const ratings = Array.from({ length: 3 }, (_, i) => ({
+    year: currentYear - i,
+    rating: performanceRatings[Math.floor(Math.random() * performanceRatings.length)],
+  }));
+  res.json({ userId, ratings });
+});
+
 module.exports = router;

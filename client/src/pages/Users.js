@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Plus, Search, Users as UsersIcon, X } from "lucide-react";
-import { usersAPI } from "../services/api";
+import { usersAPI, fetchUserPerformanceRatings } from "../services/api";
 
 function Users() {
   const [users, setUsers] = useState([]);
@@ -22,10 +22,32 @@ function Users() {
   const [locationQuery, setLocationQuery] = useState("");
   const [locationResults, setLocationResults] = useState([]);
   const [locationLoading, setLocationLoading] = useState(false);
+  const [performanceRatings, setPerformanceRatings] = useState({});
 
   useEffect(() => {
     fetchUsers();
   }, []);
+
+  useEffect(() => {
+    // Fetch performance ratings for all users after users are loaded
+    if (users.length > 0) {
+      users.forEach((user) => {
+        fetchUserPerformanceRatings(user.id)
+          .then((data) => {
+            setPerformanceRatings((prev) => ({
+              ...prev,
+              [user.id]: data.ratings,
+            }));
+          })
+          .catch(() => {
+            setPerformanceRatings((prev) => ({
+              ...prev,
+              [user.id]: null,
+            }));
+          });
+      });
+    }
+  }, [users]);
 
   const fetchUsers = async () => {
     try {
@@ -131,8 +153,8 @@ function Users() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Users</h1>
-          <p className="text-gray-600">
+          <h1 className="text-3xl font-bold text-bbc-red">Users</h1>
+          <p className="text-bbc-black">
             Manage team members and their profiles
           </p>
         </div>
@@ -160,7 +182,7 @@ function Users() {
       {/* Users Grid */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {filteredUsers.map((user) => (
-          <div key={user.id} className="card">
+          <div key={user.id} className="card shadow-none border-bbc-grey">
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">
@@ -205,6 +227,16 @@ function Users() {
                         </span>
                       )}
                     </div>
+                  </div>
+                )}
+                {performanceRatings[user.id] && (
+                  <div className="mb-4">
+                    <p className="text-xs font-medium text-gray-700 mb-2">Performance Ratings (last 3 years):</p>
+                    <ul className="text-xs text-gray-600">
+                      {performanceRatings[user.id].map((r) => (
+                        <li key={r.year} className="text-bbc-red">{r.year}: {r.rating}</li>
+                      ))}
+                    </ul>
                   </div>
                 )}
               </div>
