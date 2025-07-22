@@ -1,0 +1,27 @@
+{
+    "name": "team-tracker",
+    "version": "1.0.0",
+    "description": "A comprehensive team management system with Workday integration",
+    "main": "server/index.js",
+    "scripts": {
+        "dev": "concurrently \"npm run server\" \"npm run client\"",
+        "server": "cd server && npm run dev",
+        "client": "cd client && npm start",
+        "build": "cd client && npm run build",
+        "install-all": "npm install && cd server && npm install && cd ../client && npm install",
+        "docker-up": "docker-compose up -d",
+        "docker-down": "docker-compose down",
+        "docker-build": "docker-compose build"
+    },
+    "keywords": [
+        "team",
+        "management",
+        "workday",
+        "hierarchy"
+    ],
+    "author": "Team Tracker",
+    "license": "MIT",
+    "devDependencies": {
+        "concurrently": "^8.2.2"
+    }
+}

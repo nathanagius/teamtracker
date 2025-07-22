@@ -1,0 +1,64 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: team-tracker-db
+    environment:
+      POSTGRES_DB: team_tracker
+      POSTGRES_USER: teamtracker
+      POSTGRES_PASSWORD: teamtracker123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./server/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - team-tracker-network
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: team-tracker-server
+    environment:
+      NODE_ENV: development
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: team_tracker
+      DB_USER: teamtracker
+      DB_PASSWORD: teamtracker123
+      JWT_SECRET: your-super-secret-jwt-key-change-in-production
+    ports:
+      - "3001:3001"
+    depends_on:
+      - postgres
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+    networks:
+      - team-tracker-network
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: team-tracker-client
+    environment:
+      REACT_APP_API_URL: http://localhost:3001/api
+    ports:
+      - "3000:3000"
+    depends_on:
+      - server
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    networks:
+      - team-tracker-network
+
+volumes:
+  postgres_data:
+
+networks:
+  team-tracker-network:
+    driver: bridge
